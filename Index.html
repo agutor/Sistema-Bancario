@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Bancario</title>
+</head>
+<body class="body">
+
+    <h1>MazeBank</h1>
+
+    <link rel="stylesheet" href="General.css">
+
+    <section class="container">
+       
+        <div class="input">
+            <label for="usuario">Usuario:</label>
+            <input type="text" id="usuario">
+        </div>
+
+        <div class="input">
+            <label for="cuenta">Nro de cuenta:</label>
+            <input type="text" id="cuenta">
+        </div>
+
+        <div class="input">
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password">
+        </div>
+
+        <div class="button">
+            <button onclick="Ingresar()">Ingresar</button>
+            
+            <a href="Registro.html"><button>Nueva Cuenta</button></a>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2>Cuentas</h2>
+
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Nro de cuenta</th>
+                    <th>Contraseña</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaCuentas">
+                
+              </tbody>
+        </table>
+
+    </section>
+    <script src="Index.Js"></script>
+    
+</body>
+</html>
