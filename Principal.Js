@@ -1,6 +1,7 @@
 class Cuenta {
-  constructor(nroCuenta, saldo = 0) {
+  constructor(nroCuenta, banco, saldo = 0) {
     this.nroCuenta = nroCuenta;
+    this.banco = banco;
     this.saldo = saldo;
   }
 
@@ -13,28 +14,32 @@ class Cuenta {
     }
   }
 
-  transferirDinero(nroDestino, monto) {
+  transferirDinero(nroDestino, bancoDestino, monto) {
     const cuentas = JSON.parse(localStorage.getItem("cuentas")) || [];
 
-    const indexOrigen = cuentas.findIndex(c => c.cuenta === this.nroCuenta);
-    const indexDestino = cuentas.findIndex(c => c.cuenta === nroDestino);
+    const indexOrigen = cuentas.findIndex(c => c.cuenta === this.nroCuenta && c.banco === this.banco);
+    const indexDestino = cuentas.findIndex(c => c.cuenta === nroDestino && c.banco === bancoDestino);
 
     if (indexDestino === -1) {
-      alert("La cuenta destino no existe.");
-      return;
+      mostrarError("La cuenta destino no existe.");
+      return false;
     }
 
-    if (nroDestino === this.nroCuenta) {
-      alert("No podés transferirte dinero a vos mismo.");
-      return;
+    if (nroDestino === this.nroCuenta && bancoDestino === this.banco) {
+      mostrarError("No podés transferirte dinero a vos mismo.");
+      return false;
     }
 
-    if (cuentas[indexOrigen].saldo < monto) {
-      alert("Saldo insuficiente.");
-      return;
+    // Aplicar comisión si es transferencia interbancaria
+    const comision = bancoDestino !== this.banco ? monto * 0.01 : 0;
+    const totalDebitado = monto + comision;
+
+    if (cuentas[indexOrigen].saldo < totalDebitado) {
+      mostrarError(`Saldo insuficiente. Necesitas $${totalDebitado.toFixed(2)} (incluye $${comision.toFixed(2)} de comisión)`);
+      return false;
     }
 
-    cuentas[indexOrigen].saldo -= monto;
+    cuentas[indexOrigen].saldo -= totalDebitado;
     cuentas[indexDestino].saldo += monto;
 
     this.saldo = cuentas[indexOrigen].saldo;
@@ -42,7 +47,14 @@ class Cuenta {
     localStorage.setItem("cuentas", JSON.stringify(cuentas));
 
     document.getElementById("saldo").textContent = "$" + this.saldo.toFixed(2);
-    alert(`Transferiste $${monto} a la cuenta ${nroDestino}`);
+    
+    if (comision > 0) {
+      mostrarExito(`Transferiste $${monto.toFixed(2)} a la cuenta ${nroDestino} (${bancoDestino}). Comisión: $${comision.toFixed(2)}`);
+    } else {
+      mostrarExito(`Transferiste $${monto.toFixed(2)} a la cuenta ${nroDestino}`);
+    }
+    
+    return true;
   }
 }
 
@@ -50,16 +62,16 @@ let miCuenta = null;
 
 window.onload = () => {
   const nroCuenta = localStorage.getItem("cuentaLogueada");
+  const banco = localStorage.getItem("bancoLogueado");
   const cuentas = JSON.parse(localStorage.getItem("cuentas")) || [];
 
-  const cuentaData = cuentas.find(c => c.cuenta === nroCuenta);
+  const cuentaData = cuentas.find(c => c.cuenta === nroCuenta && c.banco === banco);
 
   if (cuentaData) {
-   
-    miCuenta = new Cuenta(cuentaData.cuenta, cuentaData.saldo);
-
+    miCuenta = new Cuenta(cuentaData.cuenta, cuentaData.banco, cuentaData.saldo);
     document.getElementById("nombreUsuario").textContent = cuentaData.usuario;
-    document.getElementById("saldo").textContent = `$${miCuenta.saldo}`;
+    document.getElementById("saldo").textContent = `$${miCuenta.saldo.toFixed(2)}`;
+    document.getElementById("bancoActual").textContent = cuentaData.banco;
   } else {
     window.location.href = "index.html";
   }
@@ -110,11 +122,10 @@ function ingresarDinero() {
 
   if (!isNaN(monto)) {
     miCuenta.ingresarDinero(monto);
-    document.getElementById("saldo").textContent = "$" + miCuenta.saldo;
-
+    document.getElementById("saldo").textContent = "$" + miCuenta.saldo.toFixed(2);
 
     const cuentas = JSON.parse(localStorage.getItem("cuentas")) || [];
-    const index = cuentas.findIndex(c => c.cuenta === miCuenta.nroCuenta);
+    const index = cuentas.findIndex(c => c.cuenta === miCuenta.nroCuenta && c.banco === miCuenta.banco);
     if (index !== -1) {
       cuentas[index].saldo = miCuenta.saldo;
       localStorage.setItem("cuentas", JSON.stringify(cuentas));
