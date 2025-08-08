@@ -84,17 +84,16 @@ function ingresarDinero() {
   }
 }
 
-function transferirDinero() {
-  const nroDestino = prompt("Ingresá el número de cuenta destino:");
-  const monto = parseFloat(prompt("¿Cuánto querés transferir?"));
-
-  if (!nroDestino || isNaN(monto) || monto <= 0) {
-    alert("Datos inválidos.");
-    return;
+function eliminarCuenta() {
+  if (confirm("¿Estás seguro de eliminar esta cuenta? Esta acción no se puede deshacer.")) {
+    const cuentas = JSON.parse(localStorage.getItem("cuentas")) || [];
+    const nuevaLista = cuentas.filter(c => !(c.cuenta === miCuenta.nroCuenta && c.banco === miCuenta.banco));
+    
+    localStorage.setItem("cuentas", JSON.stringify(nuevaLista));
+    localStorage.removeItem("cuentaLogueada");
+    localStorage.removeItem("bancoLogueado");
+    
+    alert("Cuenta eliminada correctamente.");
+    window.location.href = "index.html";
   }
-
-  miCuenta.transferirDinero(nroDestino, monto);
 }
-
-
-
