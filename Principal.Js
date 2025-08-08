@@ -63,7 +63,47 @@ window.onload = () => {
   } else {
     window.location.href = "index.html";
   }
+
+  // Configurar el formulario de transferencia
+  document.getElementById("formTransferencia").addEventListener("submit", function(e) {
+    e.preventDefault();
+    procesarTransferencia();
+  });
 };
+
+function mostrarFormularioTransferencia() {
+  document.getElementById("modalTransferencia").style.display = "block";
+}
+
+function cerrarModal() {
+  document.getElementById("modalTransferencia").style.display = "none";
+  document.getElementById("formTransferencia").reset();
+}
+
+function procesarTransferencia() {
+  const bancoDestino = document.getElementById("bancoDestino").value;
+  const cuentaDestino = document.getElementById("cuentaDestino").value;
+  const monto = parseFloat(document.getElementById("montoTransferencia").value);
+
+  if (!bancoDestino || !cuentaDestino || isNaN(monto) || monto <= 0) {
+    mostrarError("Por favor complete todos los campos correctamente.");
+    return;
+  }
+
+  const transferenciaExitosa = miCuenta.transferirDinero(cuentaDestino, bancoDestino, monto);
+  
+  if (transferenciaExitosa) {
+    cerrarModal();
+  }
+}
+
+function mostrarError(mensaje) {
+  alert("Error: " + mensaje);
+}
+
+function mostrarExito(mensaje) {
+  alert(mensaje); 
+}
 
 function ingresarDinero() {
   const monto = parseFloat(prompt("¿Cuánto dinero querés ingresar?"));
